@@ -83,18 +83,7 @@
         }
         else
         {
-            if (self.showSuccessTests == NO)
-            {
-                if (obj.status == CMTestStatusFailure)
-                {
-                    [self appendTest:obj indentation:indentation];
-                }
-            }
-            else
-            {
-                [self appendTest:obj indentation:indentation];
-            }
-            
+            [self appendTest:obj indentation:indentation];
         }
     }];
 }
