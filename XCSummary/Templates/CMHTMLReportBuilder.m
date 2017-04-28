@@ -64,7 +64,6 @@
 {
     NSUInteger successfullTests = [[summaries valueForKeyPath:@"@sum.numberOfSuccessfulTests"] integerValue];
     NSUInteger failedTests = [[summaries valueForKeyPath:@"@sum.numberOfFailedTests"] integerValue];
- 
     BOOL failuresPresent = failedTests > 0;
     NSString *templateFormat = [self _decodeTemplateWithName:SummaryTemplate];
     NSTimeInterval totalTime = [[summaries valueForKeyPath:@"@sum.totalDuration"] doubleValue];
@@ -84,18 +83,7 @@
         }
         else
         {
-            if (self.showSuccessTests == NO)
-            {
-                if (obj.status == CMTestStatusFailure)
-                {
-                    [self appendTest:obj indentation:indentation];
-                }
-            }
-            else
-            {
-                [self appendTest:obj indentation:indentation];
-            }
-            
+            [self appendTest:obj indentation:indentation];
         }
     }];
 }
@@ -154,12 +142,19 @@
         NSString *localImageName = [NSString stringWithFormat:@"resources/Screenshot_%@.png", activity.uuid.UUIDString];
         composedString = [NSString stringWithFormat:templateFormat, activity.title, activity.finishTimeInterval - activity.startTimeInterval, localImageName, localImageName];
         
-        [self.resultString appendString:composedString];
+        // Убираем лишние скрины
+        if (![activity.title isEqualToString:@"Wait for app to idle"]) {
+            [self.resultString appendString:composedString];
+        }
     }
     else
     {
-//        templateFormat = [self _decodeTemplateWithName:ActivityTemplateWithoutImage];
-//        composedString = [NSString stringWithFormat:templateFormat, indentation, @"px", activity.title, activity.finishTimeInterval - activity.startTimeInterval];
+        // Добавляем error message
+        if ([activity.title containsString:@"Assertion Failure"]) {
+            templateFormat = [self _decodeTemplateWithName:ActivityTemplateWithoutImage];
+            composedString = [NSString stringWithFormat:templateFormat, indentation, @"px", activity.title, activity.finishTimeInterval - activity.startTimeInterval];
+            [self.resultString appendString:composedString];
+        }
     }
 }
 
