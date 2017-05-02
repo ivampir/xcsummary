@@ -8,10 +8,17 @@
 
 #import "CMEntity.h"
 
+typedef NS_ENUM(NSInteger, CMActivityType)
+{
+    CMActivityTypeUnknown = 0,
+    CMActivityTypeEvent = 1
+};
+
 @interface CMActivitySummary : CMEntity
 
 @property (nonatomic, copy, readonly) NSString *title;
 @property (nonatomic, strong, readonly) NSUUID *uuid;
+@property (nonatomic, assign, readonly) CMActivityType type;
 
 @property (nonatomic, readonly) NSTimeInterval startTimeInterval;
 @property (nonatomic, readonly) NSTimeInterval finishTimeInterval;

@@ -143,7 +143,7 @@
 {
     NSString *templateFormat = nil;
     NSString *composedString = nil;
-    if (activity.hasScreenshotData)
+    if (activity.type == CMActivityTypeEvent)
     {
         templateFormat = [self _decodeTemplateWithName:ActivityTemplateWithImage];
         NSString *imageName = [NSString stringWithFormat:@"Screenshot_%@.png", activity.uuid.UUIDString];
@@ -153,8 +153,6 @@
         
         NSString *localImageName = [NSString stringWithFormat:@"resources/Screenshot_%@.png", activity.uuid.UUIDString];
         composedString = [NSString stringWithFormat:templateFormat, activity.title, activity.finishTimeInterval - activity.startTimeInterval, localImageName, localImageName];
-        
-        [self.resultString appendString:composedString];
     }
     else
     {
@@ -165,7 +163,7 @@
 
 - (void)_appendBeginingForTest:(CMTest *)test
 {
-    NSString *testBegining = [NSString stringWithFormat:@"<div id=\"%@\" style=\"display: none\" margin-left: 10.00px; background-color: #CBF4A3; padding:10px; text-align: right;", test.testName];
+    NSString *testBegining = [NSString stringWithFormat:@"<div id=\"%@\" style=\"display: none\" margin-left: 10.00px; background-color: #CBF4A3; padding:10px; text-align: right;>", test.testName];
     [self.resultString appendString:testBegining];
 }
 
