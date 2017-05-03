@@ -11,13 +11,15 @@
 typedef NS_ENUM(NSInteger, CMActivityType)
 {
     CMActivityTypeUnknown = 0,
-    CMActivityTypeEvent = 1
+    CMActivityTypeEvent = 1,
+    CMActivityTypeLog = 2
 };
 
 @interface CMActivitySummary : CMEntity
 
 @property (nonatomic, copy, readonly) NSString *title;
 @property (nonatomic, strong, readonly) NSUUID *uuid;
+@property (nonatomic, copy, readonly) NSString *userLog;
 @property (nonatomic, assign, readonly) CMActivityType type;
 
 @property (nonatomic, readonly) NSTimeInterval startTimeInterval;

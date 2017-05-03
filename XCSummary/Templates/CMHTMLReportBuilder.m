@@ -20,6 +20,7 @@
 
 @property (nonatomic, strong) NSMutableString *resultString;
 @property (nonatomic, strong) NSMutableString *developerReportString;
+@property (nonatomic, strong) NSMutableString *userReportString;
 @property (nonatomic, strong) NSFileManager *fileManager;
 @property (nonatomic) BOOL showSuccessTests;
 
@@ -104,10 +105,12 @@
 - (void)appendTest:(CMTest *)test indentation:(CGFloat)indentation
 {
     self.developerReportString = [NSMutableString new];
+    self.userReportString = [NSMutableString new];
     
     [self _appendBeginingForTest:test];
     [self _appendActivities:test.activities indentation:indentation + 50];
     [self _appendDeveloperReportForTest:test];
+    [self _appendUserReportForTest:test];
     [self _appendEndForTest:test];
 }
 
@@ -159,6 +162,11 @@
         composedString = [NSString stringWithFormat:templateFormat, activity.title, activity.finishTimeInterval - activity.startTimeInterval, localImageName, localImageName];
         [self.resultString appendString:composedString];
     }
+    else if (activity.type == CMActivityTypeLog)
+    {
+        [self.userReportString appendString:activity.userLog];
+        [self.userReportString appendString:@"<br>"];
+    }
     
     NSString *descriptionString = [NSString stringWithFormat:@"%@ (%2.2f sec)<br>", activity.title, activity.finishTimeInterval - activity.startTimeInterval];
     [self.developerReportString appendString:descriptionString];
@@ -172,9 +180,18 @@
 
 - (void)_appendDeveloperReportForTest:(CMTest *)test
 {
-    NSString *reportId = [NSString stringWithFormat:@"%@FullReport", test.testName];
+    NSString *reportId = [NSString stringWithFormat:@"%@DevReport", test.testName];
     NSString *reportLink = [NSString stringWithFormat:@"<br><br><a onclick=\"javascript:toggle('%@');\">Developer Report</a><br>", reportId];
     NSString *report = [NSString stringWithFormat:@"<div id=\"%@\" style=\"display: none\" margin-left: 10.00px; background-color: #CBF4A3; padding:10px; text-align: right;>%@</div>", reportId, self.developerReportString];
+    [self.resultString appendString:reportLink];
+    [self.resultString appendString:report];
+}
+
+- (void)_appendUserReportForTest:(CMTest *)test
+{
+    NSString *reportId = [NSString stringWithFormat:@"%@UserReport", test.testName];
+    NSString *reportLink = [NSString stringWithFormat:@"<br><br><a onclick=\"javascript:toggle('%@');\">User Report</a><br>", reportId];
+    NSString *report = [NSString stringWithFormat:@"<div id=\"%@\" style=\"display: none\" margin-left: 10.00px; background-color: #CBF4A3; padding:10px; text-align: right;>%@</div>", reportId, self.userReportString];
     [self.resultString appendString:reportLink];
     [self.resultString appendString:report];
 }

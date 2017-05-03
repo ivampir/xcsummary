@@ -10,6 +10,8 @@
 #import "NSArrayAdditions.h"
 
 static NSString *kEventTitle = @"Synthesize event";
+static NSString *kLogPrefix = @"Find: Elements matching predicate '\"log\"";
+static NSInteger kLogComponentIndex = 3;
 
 @implementation CMActivitySummary
 
@@ -27,6 +29,7 @@ static NSString *kEventTitle = @"Synthesize event";
         _hasScreenshotData = [dictionary[@"HasScreenshotData"] boolValue];
         _hasElementsOfInterest = [dictionary[@"HasElementsOfInterest"] boolValue];
         _type = [self typeForTitle:_title];
+        _userLog = [self userLogForTitle:_title];
         _subActivities = [subActivitesInfo map:^id(NSDictionary *activityInfo, NSUInteger index, BOOL *stop) {
             return [[CMActivitySummary alloc] initWithDictionary:activityInfo];
         }];
@@ -41,8 +44,23 @@ static NSString *kEventTitle = @"Synthesize event";
     {
         type = CMActivityTypeEvent;
     }
+    else if ([title hasPrefix:kLogPrefix])
+    {
+        type = CMActivityTypeLog;
+    }
     
     return type;
+}
+
+- (NSString *)userLogForTitle:(NSString *)title
+{
+    //userLog есть отлько у событий которые имеют префикс kLogPrefix
+    if (![title hasPrefix:kLogPrefix]) { return @""; };
+    
+    NSArray *components = [title componentsSeparatedByString:@"\""];
+    NSString *log = components[kLogComponentIndex];
+    
+    return  log;
 }
 
 @end
