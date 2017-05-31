@@ -21,6 +21,7 @@
 @property (nonatomic, strong) NSMutableString *resultString;
 @property (nonatomic, strong) NSMutableString *developerReportString;
 @property (nonatomic, strong) NSMutableString *userReportString;
+@property (nonatomic, strong) NSMutableString *developerScreenshotsString;
 @property (nonatomic, strong) NSFileManager *fileManager;
 @property (nonatomic) BOOL showSuccessTests;
 
@@ -66,7 +67,7 @@
 {
     NSUInteger successfullTests = [[summaries valueForKeyPath:@"@sum.numberOfSuccessfulTests"] integerValue];
     NSUInteger failedTests = [[summaries valueForKeyPath:@"@sum.numberOfFailedTests"] integerValue];
- 
+    
     BOOL failuresPresent = failedTests > 0;
     NSString *templateFormat = [self _decodeTemplateWithName:SummaryTemplate];
     NSTimeInterval totalTime = [[summaries valueForKeyPath:@"@sum.totalDuration"] doubleValue];
@@ -106,10 +107,12 @@
 {
     self.developerReportString = [NSMutableString new];
     self.userReportString = [NSMutableString new];
+    self.developerScreenshotsString = [NSMutableString new];
     
     [self _appendBeginingForTest:test];
     [self _appendActivities:test.activities indentation:indentation + 50];
     [self _appendDeveloperReportForTest:test];
+    [self _appendAllScreenshots:test];
     [self _appendUserReportForTest:test];
     [self _appendEndForTest:test];
 }
@@ -150,8 +153,8 @@
 {
     NSString *templateFormat = nil;
     NSString *composedString = nil;
-    if (activity.type == CMActivityTypeEvent)
-    {
+    
+    if (activity.hasScreenshotData) {
         templateFormat = [self _decodeTemplateWithName:ActivityTemplateWithImage];
         NSString *imageName = [NSString stringWithFormat:@"Screenshot_%@.png", activity.uuid.UUIDString];
         NSString *fullPath = [self.path stringByAppendingPathComponent:imageName];
@@ -160,14 +163,21 @@
         
         NSString *localImageName = [NSString stringWithFormat:@"resources/Screenshot_%@.png", activity.uuid.UUIDString];
         composedString = [NSString stringWithFormat:templateFormat, activity.title, activity.finishTimeInterval - activity.startTimeInterval, localImageName, localImageName];
-        [self.resultString appendString:composedString];
+        
+        // добавляем все скрины
+        [self.developerScreenshotsString appendString:composedString];
+        
+        if (activity.type == CMActivityTypeEvent)
+        {
+            [self.resultString appendString:composedString];
+        }
     }
+    
     else if (activity.type == CMActivityTypeLog)
     {
         [self.userReportString appendString:activity.userLog];
         [self.userReportString appendString:@"<br>"];
     }
-    
     NSString *descriptionString = [NSString stringWithFormat:@"%@ (%2.2f sec)<br>", activity.title, activity.finishTimeInterval - activity.startTimeInterval];
     [self.developerReportString appendString:descriptionString];
 }
@@ -183,6 +193,15 @@
     NSString *reportId = [NSString stringWithFormat:@"%@DevReport", test.testName];
     NSString *reportLink = [NSString stringWithFormat:@"<br><br><a onclick=\"javascript:toggle('%@');\">Developer Report</a><br>", reportId];
     NSString *report = [NSString stringWithFormat:@"<div id=\"%@\" style=\"display: none\" margin-left: 10.00px; background-color: #CBF4A3; padding:10px; text-align: right;>%@</div>", reportId, self.developerReportString];
+    [self.resultString appendString:reportLink];
+    [self.resultString appendString:report];
+}
+
+- (void)_appendAllScreenshots:(CMTest *) test
+{
+    NSString *reportId = [NSString stringWithFormat:@"%@DeveloperScreenshots", test.testName];
+    NSString *reportLink = [NSString stringWithFormat:@"<br><br><a onclick=\"javascript:toggle('%@');\">Developer screenshots</a><br>", reportId];
+    NSString *report = [NSString stringWithFormat:@"<div id=\"%@\" style=\"display: none\" margin-left: 10.00px; background-color: #CBF4A3; padding:10px; text-align: right;>%@</div>", reportId, self.developerScreenshotsString];
     [self.resultString appendString:reportLink];
     [self.resultString appendString:report];
 }
