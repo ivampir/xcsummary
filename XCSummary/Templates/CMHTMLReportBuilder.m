@@ -156,12 +156,12 @@
     
     if (activity.hasScreenshotData) {
         templateFormat = [self _decodeTemplateWithName:ActivityTemplateWithImage];
-        NSString *imageName = [NSString stringWithFormat:@"Screenshot_%@.png", activity.uuid.UUIDString];
+        NSString *imageName = [NSString stringWithFormat:@"Screenshot_%@.jpg", activity.uuid.UUIDString];
         NSString *fullPath = [self.path stringByAppendingPathComponent:imageName];
         
         [self.fileManager copyItemAtPath:fullPath toPath:[self.htmlResourcePath stringByAppendingPathComponent:imageName] error:nil];
         
-        NSString *localImageName = [NSString stringWithFormat:@"resources/Screenshot_%@.png", activity.uuid.UUIDString];
+        NSString *localImageName = [NSString stringWithFormat:@"Attachments/Screenshot_%@.jpg", activity.uuid.UUIDString];
         composedString = [NSString stringWithFormat:templateFormat, activity.title, activity.finishTimeInterval - activity.startTimeInterval, localImageName, localImageName];
         
         // добавляем все скрины
